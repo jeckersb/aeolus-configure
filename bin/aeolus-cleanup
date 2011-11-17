@@ -19,27 +19,31 @@ usage()
 cat << EOF
 
 USAGE:
-aeolus-cleanup [-d|--debug] [-h|--help] [-v|--verbose]
+aeolus-cleanup [-d|--debug] [-h|--help] [-m|--mongodb] [-v|--verbose]
 
 OPTIONS:
    -h | --help       Show this message.
    -d | --debug      Debug logging mode.
+   -m | --mongodb    Clean mongodb data.
    -v | --verbose    Verbose logging mode.
 EOF
 }
 
-args=`getopt -o :hdv --long help,debug,verbose -- "$@"`
+args=`getopt -o :hdmv --long help,debug,mongodb,verbose -- "$@"`
 if test $? != 0
      then
          usage
          exit 1
 fi
 
+CLEAN_MONGODB=1
+
 eval set -- $args
 while true ; do
         case "$1" in
                 -h|--help) usage ; exit 1 ;  shift ;;
                 -d|--debug) LOGLEVEL="--debug" ; shift ;;
+                -m|--mongodb) CLEAN_MONGODB=0 ; shift ;;
                 -v|--verbose) LOGLEVEL="--verbose" ; shift  ;;
                 --) shift ; break ;;
                 *)  usage ; exit 1 ;;
@@ -50,6 +54,9 @@ PUPPET_NODE='cleanup'
 
 export FACTER_AEOLUS_ENABLE_HTTPS=true
 export FACTER_AEOLUS_ENABLE_SECURITY=false
+if [[ $CLEAN_MONGODB -eq 0 ]] ; then
+    export FACTER_AEOLUS_CLEANUP_MONGODB=true
+fi
 puppet /usr/share/aeolus-configure/modules/aeolus/aeolus.pp \
        --modulepath=/usr/share/aeolus-configure/modules/ \
        --external_nodes "/bin/sh /usr/share/aeolus-configure/modules/aeolus/aeolus-node $PUPPET_NODE" --node_terminus exec \

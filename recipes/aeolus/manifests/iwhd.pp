@@ -80,6 +80,12 @@ class aeolus::iwhd::disabled {
       force   => true,
       require => Service['iwhd']}
 
+   if $aeolus_cleanup_mongodb {
+     exec { 'clean_mongodb_data':
+       command => '/bin/rm -rf /var/lib/mongodb/*',
+       require => Service['mongod'],
+     }
+   }
 }
 
 # Create a named bucket in iwhd
