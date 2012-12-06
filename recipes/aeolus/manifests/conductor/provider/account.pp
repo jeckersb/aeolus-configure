@@ -2,7 +2,7 @@
 define aeolus::conductor::provider::account($provider="", $type="", $username="",$password="", $account_id="",$x509private="", $x509public="", $admin_login=""){
   if $type != "ec2" {
     web_request{ "provider-account-$name":
-      post         => "https://localhost/conductor/providers/0/provider_accounts",
+      post         => "https://localhost/conductor/api/provider_accounts.xml",
       parameters  => { 'provider_account[label]'  => $name,
                        'provider_account[provider]' => $provider,
                        'provider_account[credentials_hash[username]]'   => $username,
@@ -14,13 +14,13 @@ define aeolus::conductor::provider::account($provider="", $type="", $username=""
       #contains    => "//table/thead/tr/th[text() = 'Properties for $name']",
       follow      => true,
       use_cookies_at => "/tmp/aeolus-${admin_login}",
-      unless      => { 'get'             => 'https://localhost/conductor/provider_accounts',
-                       'contains'        => "//html/body//a[text() = '$name']" },
+      unless      => { 'get'             => 'https://localhost/conductor/api/provider_accounts.xml',
+                       'contains'        => "/provider_accounts/provider_account/name[text() = '$name']" },
       require    => Service['aeolus-conductor']}
 
   } else {
     web_request{ "provider-account-$name":
-      post         => "https://localhost/conductor/provider_accounts",
+      post         => "https://localhost/conductor/api/provider_accounts.xml",
       parameters  => { 'provider_account[label]'  => $name,
                        'provider_account[provider]' => $provider,
                        'provider_account[credentials_hash[username]]'   => $username,
@@ -35,8 +35,8 @@ define aeolus::conductor::provider::account($provider="", $type="", $username=""
       #contains    => "//table/thead/tr/th[text() = 'Properties for $name']",
       follow      => true,
       use_cookies_at => "/tmp/aeolus-${admin_login}",
-      unless      => { 'get'             => 'https://localhost/conductor/provider_accounts',
-                       'contains'        => "//html/body//a[text() = '$name']" },
+      unless      => { 'get'             => 'https://localhost/conductor/api/provider_accounts.xml',
+                       'contains'        => "/provider_accounts/provider_account/name[text() = '$name']" },
       require    => Service['aeolus-conductor']
     }
   }
